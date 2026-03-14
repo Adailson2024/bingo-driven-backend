@@ -2,7 +2,7 @@ FROM node:alpine
 
 RUN apk add --no-cache openssl libc6-compat
 
-WORKDIR /usr/src
+WORKDIR /usr/src/backend
 
 COPY package*.json ./
 COPY prisma ./prisma/
