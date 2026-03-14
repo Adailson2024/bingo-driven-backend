@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres-test
+    # Usamos uma porta diferente (5433) para não conflitar com o dev (5432)
+    ports:
+      - "5440:5432"
+    env_file:
+      - .env.test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -q -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mynetwork
+
+  backend:
+    image: bingo-backend-test
+    container_name: bingo-backend-test
+    build:
+      context: .
+      dockerfile: Dockerfile.dev # Usando o seu arquivo de desenvolvimento
+    # Porta 5002 para não conflitar com a 5000/5001 do dev
+    ports:
+      - "5002:5000"
+    env_file:
+      - .env.test
+    networks:
+      - mynetwork
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+networks:
+  mynetwork:
+    
+    driver: bridge
